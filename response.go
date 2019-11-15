@@ -244,6 +244,7 @@ func (r *Response) AttachmentData(dataType AttachmentType, filename string, file
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	return checkFacebookError(resp.Body)
 }
