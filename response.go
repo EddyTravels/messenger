@@ -360,9 +360,7 @@ func (r *Response) DispatchMessage(m interface{}) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode == 200 {
-		return nil
-	}
+
 	return checkFacebookError(resp.Body)
 }
 
