@@ -31,6 +31,9 @@ type Message struct {
 	// Entities for NLP
 	// https://developers.facebook.com/docs/messenger-platform/built-in-nlp/
 	NLP json.RawMessage `json:"nlp"`
+	// PersonaID is the ID of persona used when sending a message
+	// https://developers.facebook.com/docs/messenger-platform/send-messages/personas/#invoking
+	PersonaID string `json:"persona_id"`
 }
 
 // Delivery represents a the event fired when Facebook delivers a message to the
