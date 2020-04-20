@@ -405,6 +405,7 @@ type SendMessage struct {
 	Recipient     Recipient     `json:"recipient"`
 	Message       MessageData   `json:"message"`
 	Tag           string        `json:"tag,omitempty"`
+	PersonaID     string        `json:"persona_id,omitempty"`
 }
 
 // MessageData is a message consisting of text or an attachment, with an additional selection of optional quick replies.
@@ -488,5 +489,5 @@ type StructuredMessageButton struct {
 type SendSenderAction struct {
 	Recipient    Recipient `json:"recipient"`
 	SenderAction string    `json:"sender_action"`
-	PersonaID    string    `json:"persona_id"`
+	PersonaID    string    `json:"persona_id,omitempty"`
 }
