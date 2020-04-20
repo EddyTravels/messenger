@@ -488,4 +488,5 @@ type StructuredMessageButton struct {
 type SendSenderAction struct {
 	Recipient    Recipient `json:"recipient"`
 	SenderAction string    `json:"sender_action"`
+	PersonaID    string    `json:"persona_id"`
 }
