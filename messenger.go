@@ -68,20 +68,36 @@ type ReferralHandler func(ReferralMessage, *Response)
 // being linked or unlinked.
 type AccountLinkingHandler func(AccountLinking, *Response)
 
+// PassThreadControlHandler is a handler used to react when thread control is passed to application
+type PassThreadControlHandler func(PassThreadControl, *Response)
+
+// TakeThreadControl is a handler used to react when thread control was taken away
+type TakeThreadControlHandler func(TakeThreadControl, *Response)
+
+// RequestThreadControl is a handler used to react to requests for thread controls
+type RequestThreadControlHandler func(RequestThreadControl, *Response)
+
+// StandbyHandler is a handler used to react to events received when in standby
+type StandbyHandler func(MessageInfo, *Response)
+
 // Messenger is the client which manages communication with the Messenger Platform API.
 type Messenger struct {
-	mux                    *http.ServeMux
-	messageHandlers        []MessageHandler
-	deliveryHandlers       []DeliveryHandler
-	readHandlers           []ReadHandler
-	postBackHandlers       []PostBackHandler
-	optInHandlers          []OptInHandler
-	referralHandlers       []ReferralHandler
-	accountLinkingHandlers []AccountLinkingHandler
-	token                  string
-	verifyHandler          func(http.ResponseWriter, *http.Request)
-	verify                 bool
-	appSecret              string
+	mux                          *http.ServeMux
+	messageHandlers              []MessageHandler
+	deliveryHandlers             []DeliveryHandler
+	readHandlers                 []ReadHandler
+	postBackHandlers             []PostBackHandler
+	optInHandlers                []OptInHandler
+	referralHandlers             []ReferralHandler
+	accountLinkingHandlers       []AccountLinkingHandler
+	passThreadControlHandlers    []PassThreadControlHandler
+	takeThreadControlHandlers    []TakeThreadControlHandler
+	requestThreadControlHandlers []RequestThreadControlHandler
+	standbyHandlers              []StandbyHandler
+	token                        string
+	verifyHandler                func(http.ResponseWriter, *http.Request)
+	verify                       bool
+	appSecret                    string
 }
 
 // New creates a new Messenger. You pass in Options in order to affect settings.
@@ -144,6 +160,26 @@ func (m *Messenger) HandleReferral(f ReferralHandler) {
 // HandleAccountLinking adds a new AccountLinkingHandler to the Messenger
 func (m *Messenger) HandleAccountLinking(f AccountLinkingHandler) {
 	m.accountLinkingHandlers = append(m.accountLinkingHandlers, f)
+}
+
+// HandlePassThreadControl adds a new PassThreadControlHandler to the Messenger
+func (m *Messenger) HandlePassThreadControl(f PassThreadControlHandler) {
+	m.passThreadControlHandlers = append(m.passThreadControlHandlers, f)
+}
+
+// HandleTakeThreadControl adds a new TakeThreadControlHandler to the Messenger
+func (m *Messenger) HandleTakeThreadControl(f TakeThreadControlHandler) {
+	m.takeThreadControlHandlers = append(m.takeThreadControlHandlers, f)
+}
+
+// HandleRequestThreadControl adds a new RequestThreadControlHandler to the Messenger
+func (m *Messenger) HandleRequestThreadControl(f RequestThreadControlHandler) {
+	m.requestThreadControlHandlers = append(m.requestThreadControlHandlers, f)
+}
+
+// HandleStandby adds a new StandbyHandler to the Messenger
+func (m *Messenger) HandleStandby(f StandbyHandler) {
+	m.standbyHandlers = append(m.standbyHandlers, f)
 }
 
 // Handler returns the Messenger in HTTP client form.
@@ -412,6 +448,24 @@ func (m *Messenger) dispatch(r Receive) {
 					message.Time = time.Unix(info.Timestamp/int64(time.Microsecond), 0)
 					f(message, resp)
 				}
+			case PassThreadControlAction:
+				for _, f := range m.passThreadControlHandlers {
+					f(*info.PassThreadControl, resp)
+				}
+			case TakeThreadControlAction:
+				for _, f := range m.takeThreadControlHandlers {
+					f(*info.TakeThreadControl, resp)
+				}
+			case RequestThreadControlAction:
+				for _, f := range m.requestThreadControlHandlers {
+					f(*info.RequestThreadControl, resp)
+				}
+			case StandbyAction:
+				for _, event := range info.Standby {
+					for _, f := range m.standbyHandlers {
+						f(event, resp)
+					}
+				}
 			}
 		}
 	}
@@ -504,6 +558,14 @@ func (m *Messenger) classify(info MessageInfo) Action {
 		return ReferralAction
 	} else if info.AccountLinking != nil {
 		return AccountLinkingAction
+	} else if info.PassThreadControl != nil {
+		return PassThreadControlAction
+	} else if info.TakeThreadControl != nil {
+		return TakeThreadControlAction
+	} else if info.RequestThreadControl != nil {
+		return RequestThreadControlAction
+	} else if len(info.Standby) > 0 {
+		return StandbyAction
 	}
 	return UnknownAction
 }
