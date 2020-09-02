@@ -45,6 +45,14 @@ type MessageInfo struct {
 	ReferralMessage *ReferralMessage `json:"referral"`
 
 	AccountLinking *AccountLinking `json:"account_linking"`
+
+	PassThreadControl *PassThreadControl `json:"pass_thread_control"`
+
+	TakeThreadControl *TakeThreadControl `json:"take_thread_control"`
+
+	RequestThreadControl *RequestThreadControl `json:"request_thread_control"`
+
+	Standby []MessageInfo `json:"standby"`
 }
 
 type OptIn struct {

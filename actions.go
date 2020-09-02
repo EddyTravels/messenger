@@ -23,4 +23,12 @@ const (
 	// AccountLinkingAction means that the event concerns changes in account linking
 	// status.
 	AccountLinkingAction
+	// PassThreadControlAction means that thread control was passed to application
+	PassThreadControlAction
+	// TakeThreadControlAction means that thread control was taken away from application
+	TakeThreadControlAction
+	// RequestThreadControlAction means that secondary receiver is requesting thread control
+	RequestThreadControlAction
+	// StandbyAction means that event occurred but your application is not the current thread owner
+	StandbyAction
 )

@@ -81,6 +81,21 @@ type AccountLinking struct {
 	AuthorizationCode string `json:"authorization_code"`
 }
 
+type PassThreadControl struct {
+	NewOwnerAppId int64  `json:"new_owner_app_id"`
+	Metadata      string `json:"metadata"`
+}
+
+type TakeThreadControl struct {
+	PreviousOwnerAppId int64  `json:"previous_owner_app_id"`
+	Metadata           string `json:"metadata"`
+}
+
+type RequestThreadControl struct {
+	RequestedOwnerAppId int64  `json:"requested_owner_app_id"`
+	Metadata            string `json:"metadata"`
+}
+
 // Watermark is the RawWatermark timestamp rendered as a time.Time.
 func (d Delivery) Watermark() time.Time {
 	return time.Unix(d.RawWatermark/int64(time.Microsecond), 0)
